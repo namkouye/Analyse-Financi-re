@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Patrimoine</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#14181f;--mut:#6b7280;--bd:#e3e6eb;--ac:#0f766e;--ac2:#14b8a6;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--info:#2563eb;--r:12px}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1116;--card:#171b22;--tx:#e8ebf0;--mut:#98a2b3;--bd:#262c36;--ac:#2dd4bf;--ac2:#14b8a6;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--info:#60a5fa}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:76px}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--bd);padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+header h1{font-size:17px;margin:0;flex:1;min-width:110px}
+.seg{display:inline-flex;border:1px solid var(--bd);border-radius:9px;overflow:hidden}
+.seg button{border:0;background:none;color:var(--tx);padding:6px 11px;font:inherit;cursor:pointer}
+.seg button.on{background:var(--ac);color:#fff}
+@media(prefers-color-scheme:dark){.seg button.on{color:#06201c}}
+main{max-width:1000px;margin:0 auto;padding:14px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--bd);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--mut);padding:11px 4px;font:inherit;font-size:13px;cursor:pointer}
+nav button.on{color:var(--ac);font-weight:600;box-shadow:inset 0 2px 0 var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:14px}
+.card h2{font-size:14px;margin:0 0 10px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.kpis{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px}
+.kpi small{color:var(--mut);display:block}
+.kpi b{font-size:20px;display:block;margin-top:2px}
+.kpi span{font-size:12px;color:var(--mut)}
+.ind{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--bd);align-items:flex-start}
+.ind:first-of-type{border-top:0}
+.ind small{display:block;color:var(--mut);font-size:12.5px}
+.ind .r{text-align:right;white-space:nowrap}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;margin-left:6px;color:#fff}
+.badge.ok{background:var(--ok)}.badge.warn{background:var(--warn)}.badge.bad{background:var(--bad)}.badge.info{background:var(--info)}
+.row{display:grid;grid-template-columns:minmax(80px,1.2fr) 2fr auto;gap:8px;align-items:center;margin:6px 0;font-size:13.5px}
+.row .lb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{height:10px;background:var(--bd);border-radius:6px;overflow:hidden;position:relative}
+.bar i{display:block;height:100%;border-radius:6px;background:var(--ac2)}
+.bar i.ok{background:var(--ok)}.bar i.warn{background:var(--warn)}.bar i.bad{background:var(--bad)}
+.row .v{text-align:right;font-variant-numeric:tabular-nums;min-width:84px}
+.row .v small{color:var(--mut);display:block;font-size:11px}
+button.btn,label.btn{background:var(--ac);color:#fff;border:0;border-radius:9px;padding:8px 14px;font:inherit;cursor:pointer;display:inline-block}
+@media(prefers-color-scheme:dark){button.btn,label.btn{color:#06201c}}
+button.btn.sec,label.btn.sec{background:none;color:var(--tx);border:1px solid var(--bd)}
+button.btn.danger{background:var(--bad);color:#fff}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+input,select{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:7px 9px;width:100%}
+.tools input,.tools select{width:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:7px 8px;text-align:left;border-top:1px solid var(--bd);white-space:nowrap}
+th{color:var(--mut);font-weight:600;font-size:12px;border-top:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.sc{overflow-x:auto}
+dialog{border:1px solid var(--bd);border-radius:var(--r);background:var(--card);color:var(--tx);padding:16px;width:min(560px,94vw);max-height:90vh;overflow:auto}
+dialog::backdrop{background:#0008}
+.f{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.f label{font-size:12.5px;color:var(--mut)}
+.f .w{grid-column:1/-1}
+.muted{color:var(--mut);font-size:13px}
+.banner{border-radius:var(--r);padding:11px 14px;margin-bottom:14px;border:1px solid var(--bd);background:var(--card)}
+.banner.bad{border-color:var(--bad)}.banner.warn{border-color:var(--warn)}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#111;color:#fff;padding:9px 16px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:20;max-width:90vw}
+#toast.on{opacity:1}
+.empty{text-align:center;padding:30px 10px}
+.empty h2{font-size:18px;color:var(--tx);text-transform:none;letter-spacing:0}
+.empty .tools{justify-content:center}
+.th2{display:grid;grid-template-columns:1fr 70px 70px;gap:6px;align-items:center;margin:4px 0;font-size:13.5px}
+.fxg{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.fxg label{font-size:12px;color:var(--mut)}
+.disc{font-size:12px;color:var(--mut);margin-top:6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>💼 Patrimoine</h1>
+  <div class="seg" id="scopeSeg">
+    <button data-act="scope" data-v="all">Tout</button>
+    <button data-act="scope" data-v="perso">Perso</button>
+    <button data-act="scope" data-v="pro">Pro</button>
+  </div>
+</header>
+<main id="app"></main>
+<nav>
+  <button data-tab="dash" data-act="tab">📊<br>Analyse</button>
+  <button data-tab="pos" data-act="tab">📋<br>Positions</button>
+  <button data-tab="imp" data-act="tab">⬆️<br>Import</button>
+  <button data-tab="set" data-act="tab">⚙️<br>Réglages</button>
+</nav>
+<dialog id="dlg"></dialog>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ====================== Constantes & état ====================== */
+const LS='patrimoine.v1';
+const TYPES=['Action','ETF','Obligation','Fonds','Immobilier coté','Matières/Or','Crypto','Cash','Autre'];
+const DEF_VOL={'Action':22,'ETF':16,'Obligation':6,'Fonds':12,'Immobilier coté':19,'Matières/Or':16,'Crypto':70,'Cash':0.5,'Autre':15};
+// Taux indicatifs : unités de devise pour 1 EUR. À actualiser (Réglages > Actualiser les taux).
+const DEF_FX={EUR:1,USD:1.08,GBP:0.86,CHF:0.94,JPY:162,CAD:1.47,AUD:1.65,SEK:11.4,NOK:11.7,DKK:7.46,HKD:8.4,CNY:7.7,SGD:1.45};
+const NEUTRAL=new Set(['Monde','Non renseigné','Liquidités','Diversifié']);
+const defaults=()=>({base:'EUR',fx:{...DEF_FX},fxDate:null,rho:0.6,scope:'all',volDef:{...DEF_VOL},
+  th:{pos:[10,20],country:[60,80],sector:[30,45],ccy:[40,60],fee:[0.5,1],cash:[25,50],vol:[15,22],nmin:[10,5]},positions:[]});
+let S=load();let tab='dash';let imp=null;let q='';
+
+function load(){try{const s=JSON.parse(localStorage.getItem(LS));if(s){const d=defaults();return {...d,...s,th:{...d.th,...s.th},volDef:{...d.volDef,...s.volDef},fx:{...d.fx,...s.fx}}}}catch(e){}return defaults()}
+function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){toast('Stockage local indisponible')}}
+
+/* ====================== Utilitaires ====================== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+const key=s=>norm(s).replace(/[^a-z0-9]/g,'');
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const money=(v,d=0)=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:S.base,maximumFractionDigits:d}).format(v||0);
+const pc=(v,d=1)=>new Intl.NumberFormat('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d}).format(v||0)+' %';
+const nf=(v,d=2)=>new Intl.NumberFormat('fr-FR',{maximumFractionDigits:d}).format(v||0);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2600)}
+function num(v){
+  if(v==null)return NaN;let s=String(v).trim().replace(/[\s\u00a0'’€$£%]/g,'');if(!s)return NaN;
+  s=s.replace(/[A-Za-z]/g,'');const lc=s.lastIndexOf(','),ld=s.lastIndexOf('.');
+  if(lc>-1&&ld>-1){s=lc>ld?s.replace(/\./g,'').replace(',','.'):s.replace(/,/g,'')}
+  else if(lc>-1){s=s.replace(',','.');if((s.match(/\./g)||[]).length>1)s=s.replace(/\./g,'')}
+  else if((s.match(/\./g)||[]).length>1){s=s.replace(/\./g,'')}
+  return parseFloat(s);
+}
+const st=(v,[w,a])=>v>=a?'bad':v>=w?'warn':'ok';
+const stRev=(v,[w,a])=>v<a?'bad':v<w?'warn':'ok';
+
+/* ====================== Géographie / normalisation ====================== */
+const ISO={us:'États-Unis',usa:'États-Unis','united states':'États-Unis','etats-unis':'États-Unis',fr:'France',de:'Allemagne',gb:'Royaume-Uni',uk:'Royaume-Uni',ch:'Suisse',jp:'Japon',nl:'Pays-Bas',ie:'Irlande',it:'Italie',es:'Espagne',be:'Belgique',se:'Suède',no:'Norvège',dk:'Danemark',fi:'Finlande',at:'Autriche',pt:'Portugal',lu:'Luxembourg',ca:'Canada',cn:'Chine',in:'Inde',br:'Brésil',mx:'Mexique',au:'Australie',hk:'Hong Kong',sg:'Singapour',kr:'Corée du Sud',tw:'Taïwan',za:'Afrique du Sud',world:'Monde',global:'Monde',monde:'Monde',germany:'Allemagne',france:'France',switzerland:'Suisse',japan:'Japon',china:'Chine',india:'Inde',netherlands:'Pays-Bas',spain:'Espagne',italy:'Italie',ireland:'Irlande',canada:'Canada',australia:'Australie'};
+function normCountry(c){c=String(c??'').trim();if(!c)return '';const k=norm(c);return ISO[k]||c}
+const REG={Europe:['france','allemagne','royaume-uni','suisse','pays-bas','irlande','italie','espagne','belgique','suede','norvege','danemark','finlande','autriche','portugal','luxembourg','europe'],
+ 'Amérique du Nord':['etats-unis','canada','amerique du nord'],
+ 'Asie-Pacifique développée':['japon','australie','hong kong','singapour','nouvelle-zelande','coree du sud','taiwan','asie-pacifique'],
+ 'Marchés émergents':['chine','inde','bresil','mexique','afrique du sud','indonesie','turquie','arabie saoudite','emergents','marches emergents']};
+function regionOf(c){if(!c)return 'Non renseigné';const k=norm(c);if(k==='monde')return 'Monde';if(k==='liquidites')return 'Liquidités';for(const r in REG)if(REG[r].includes(k))return r;return 'Autre'}
+function normType(s,def){const k=norm(s);if(!k)return def;
+  if(/etf|tracker|ucits/.test(k))return 'ETF';if(/action|equity|stock|share/.test(k))return 'Action';if(/oblig|bond|taux|fixed/.test(k))return 'Obligation';
+  if(/cash|liquid|monetaire|compte|espece/.test(k))return 'Cash';if(/fonds|opcvm|fund|sicav/.test(k))return 'Fonds';if(/immo|reit|scpi|foncier/.test(k))return 'Immobilier coté';
+  if(/^or$|gold|matiere|commodit|metal/.test(k))return 'Matières/Or';if(/crypto|bitcoin|btc|eth/.test(k))return 'Crypto';return TYPES.includes(s)?s:'Autre'}
+function normCcy(c,def){c=String(c??'').trim();if(!c)return def;const m={'€':'EUR','$':'USD','£':'GBP','¥':'JPY'};if(m[c])return m[c];c=c.toUpperCase();return /^[A-Z]{3}$/.test(c)?c:def}
+
+/* ====================== Calculs ====================== */
+function compute(){
+  const rb=S.fx[S.base]||1;const missing=new Set();
+  const list=S.positions.filter(p=>S.scope==='all'||p.scope===S.scope).map(p=>{
+    const r=S.fx[p.ccy];if(!r)missing.add(p.ccy);
+    const val=(p.qty*p.price)/(r||rb)*rb;
+    const vol=(p.vol!=null&&!isNaN(p.vol))?+p.vol:(S.volDef[p.type]??15);
+    return {...p,val,vol,fee:(p.fee!=null&&!isNaN(p.fee))?+p.fee:null,
+      cl:p.country?normCountry(p.country):(p.type==='Cash'?'Liquidités':'Non renseigné'),
+      sl:p.type==='Cash'?'Liquidités':(p.sector||'Non renseigné'),
+      al:(p.scope==='pro'?'Pro':'Perso')+' · '+(p.account||'Sans compte')};
+  });
+  const total=list.reduce((a,p)=>a+p.val,0);
+  const D={list,total,missing:[...missing]};
+  if(!total)return D;
+  const group=fn=>{const m=new Map();list.forEach(p=>{const k=fn(p);m.set(k,(m.get(k)||0)+p.val)});return [...m].map(([k,v])=>({k,v,pct:v/total*100})).sort((a,b)=>b.v-a.v)};
+  D.byType=group(p=>p.type);D.byCcy=group(p=>p.ccy);D.byCountry=group(p=>p.cl);D.byRegion=group(p=>regionOf(p.cl));
+  D.bySector=group(p=>p.sl);D.byAcct=group(p=>p.al);
+  const risky=list.filter(p=>p.type!=='Cash').sort((a,b)=>b.val-a.val);
+  D.top=risky.slice(0,10).map(p=>({k:p.name,v:p.val,pct:p.val/total*100}));
+  // coûts
+  D.feeAmt=list.reduce((a,p)=>a+p.val*(p.fee||0)/100,0);D.feePct=D.feeAmt/total*100;
+  const noFee=list.filter(p=>p.fee==null&&p.type!=='Cash'&&p.type!=='Action'&&p.type!=='Obligation').reduce((a,p)=>a+p.val,0);
+  // volatilité (corrélation uniforme rho)
+  let A=0,B=0;list.forEach(p=>{const w=p.val/total,s=p.vol/100;A+=w*s;B+=w*w*s*s});
+  const rho=S.rho;D.vol=Math.sqrt(Math.max(0,(1-rho)*B+rho*A*A))*100;D.var95=D.vol*1.65;
+  const hhi=risky.reduce((a,p)=>a+Math.pow(p.val/total,2),0);D.effN=hhi?1/hhi*Math.pow(risky.reduce((a,p)=>a+p.val,0)/total,2):0;
+  // indicateurs
+  const T=S.th,I=[];const add=(label,value,status,hint)=>I.push({label,value,status,hint});
+  const p0=D.top[0];
+  if(p0)add('Plus grosse ligne',pc(p0.pct),st(p0.pct,T.pos),p0.k+' — seuils '+T.pos.join(' / ')+' %');
+  const nLines=risky.length;
+  add('Diversification',nLines+' lignes · ≈'+nf(D.effN,1)+' effectives',stRev(nLines,T.nmin),'Nombre de lignes hors cash ; « effectives » = pondéré par la concentration (inverse de l\'indice HHI)');
+  const c0=D.byCountry.find(x=>!NEUTRAL.has(x.k));if(c0)add('Pays dominant',pc(c0.pct),st(c0.pct,T.country),c0.k+' (hors « Monde » / non renseigné)');
+  const s0=D.bySector.find(x=>!NEUTRAL.has(x.k));if(s0)add('Secteur dominant',pc(s0.pct),st(s0.pct,T.sector),s0.k);
+  const fx0=D.byCcy.filter(x=>x.k!==S.base);const fxTot=fx0.reduce((a,x)=>a+x.pct,0);
+  if(fx0.length)add('Devise étrangère dominante',pc(fx0[0].pct),st(fx0[0].pct,T.ccy),fx0[0].k+' vs devise de référence '+S.base);
+  add('Exposition hors '+S.base,pc(fxTot),'info','Part du patrimoine soumise au risque de change');
+  add('Frais courants pondérés',pc(D.feePct,2)+' /an',st(D.feePct,T.fee),'≈ '+money(D.feeAmt)+' par an'+(noFee/total>0.05?' · frais non renseignés sur '+pc(noFee/total*100,0)+' (ETF/fonds)':''));
+  const cash=D.byType.find(x=>x.k==='Cash');const cp=cash?cash.pct:0;
+  add('Liquidités',pc(cp),cp<2?'info':st(cp,T.cash),cp<2?'Coussin de liquidité très faible':'Poids du cash (frein de rendement si élevé)');
+  add('Volatilité estimée',pc(D.vol),st(D.vol,T.vol),'Annualisée, corrélation moyenne '+nf(rho,2)+' entre lignes (modèle simplifié)');
+  const miss=list.filter(p=>p.type!=='Cash'&&(!p.country||!p.sector)).reduce((a,p)=>a+p.val,0)/total*100;
+  if(miss>5)add('Qualité des données',pc(miss,0)+' incomplet',miss>25?'warn':'info','Pays ou secteur manquants : les pondérations sont partielles');
+  D.inds=I;return D;
+}
+
+/* ====================== Vues ====================== */
+function bars(items,th,max){
+  if(!items||!items.length)return '<div class="muted">—</div>';
+  const m=Math.max(...items.map(i=>i.pct),1);
+  return items.slice(0,max||12).map(i=>{
+    const cls=th&&!NEUTRAL.has(i.k)?st(i.pct,th):'';
+    return `<div class="row"><div class="lb" title="${esc(i.k)}">${esc(i.k)}</div><div class="bar"><i class="${cls}" style="width:${i.pct/m*100}%"></i></div><div class="v">${pc(i.pct)}<small>${money(i.v)}</small></div></div>`}).join('');
+}
+const BL={ok:'OK',warn:'Vigilance',bad:'Alerte',info:'Info'};
+function empty(){return `<div class="card empty"><h2>Bienvenue 👋</h2><p class="muted">Ajoutez vos lignes (cash compris) à la main ou importez un CSV de votre courtier.<br>Tout reste sur votre appareil.</p><div class="tools"><button class="btn" data-act="tab" data-tab="imp">Importer un CSV</button><button class="btn sec" data-act="addPos">Ajouter une ligne</button><button class="btn sec" data-act="demo">Charger un exemple</button></div></div>`}
+function vDash(){
+  if(!S.positions.length)return empty();
+  const D=compute();if(!D.total)return '<div class="card">Aucune ligne dans ce périmètre.</div>';
+  const bad=D.inds.filter(i=>i.status==='bad').length,warn=D.inds.filter(i=>i.status==='warn').length;
+  let h='';
+  if(D.missing.length)h+=`<div class="banner warn">⚠️ Taux de change manquant : <b>${D.missing.join(', ')}</b> (valorisées au taux 1). Renseignez-les dans Réglages.</div>`;
+  h+=`<div class="banner ${bad?'bad':warn?'warn':''}">${bad?'🔴 '+bad+' alerte'+(bad>1?'s':''):'🟢 Aucune alerte'}${warn?' · 🟠 '+warn+' point'+(warn>1?'s':'')+' de vigilance':''}</div>`;
+  h+=`<div class="kpis">
+   <div class="kpi"><small>Patrimoine</small><b>${money(D.total)}</b><span>${D.list.length} lignes · ${S.base}</span></div>
+   <div class="kpi"><small>Frais annuels</small><b>${money(D.feeAmt)}</b><span>${pc(D.feePct,2)} du patrimoine</span></div>
+   <div class="kpi"><small>Volatilité estimée</small><b>${pc(D.vol)}</b><span>annualisée</span></div>
+   <div class="kpi"><small>Perte plausible 1 an</small><b>−${money(D.total*D.var95/100)}</b><span>≈ −${pc(D.var95)} (95 %)</span></div></div>`;
+  h+=`<div class="card"><h2>Indicateurs de risque & coût</h2>`+D.inds.map(i=>`<div class="ind"><div><b>${esc(i.label)}</b><small>${esc(i.hint)}</small></div><div class="r">${esc(i.value)}<span class="badge ${i.status}">${BL[i.status]}</span></div></div>`).join('')+`</div>`;
+  const T=S.th;
+  h+=`<div class="grid">
+   <div class="card"><h2>Classe d'actifs</h2>${bars(D.byType)}</div>
+   <div class="card"><h2>Devises</h2>${bars(D.byCcy,T.ccy)}</div>
+   <div class="card"><h2>Zones géographiques</h2>${bars(D.byRegion)}</div>
+   <div class="card"><h2>Pays</h2>${bars(D.byCountry,T.country)}</div>
+   <div class="card"><h2>Secteurs</h2>${bars(D.bySector,T.sector)}</div>
+   <div class="card"><h2>Comptes / portefeuilles</h2>${bars(D.byAcct)}</div>
+   <div class="card"><h2>Top 10 positions</h2>${bars(D.top,T.pos,10)}</div></div>`;
+  h+=`<p class="disc">Outil d'aide à l'analyse, pas un conseil en investissement. Volatilités par défaut par classe d'actifs (modifiables) ; la perte plausible est une estimation statistique, pas une garantie.</p>`;
+  return h;
+}
+function vPos(){
+  const D=compute();const f=norm(q);
+  const rows=D.list.filter(p=>!f||norm([p.name,p.ticker,p.account,p.sector,p.cl,p.type].join(' ')).includes(f)).sort((a,b)=>b.val-a.val);
+  return `<div class="tools"><button class="btn" data-act="addPos">+ Ligne</button><button class="btn sec" data-act="addCash">+ Cash</button>
+   <input id="q" placeholder="Rechercher…" value="${esc(q)}" data-in="q" style="flex:1;min-width:120px"><button class="btn sec" data-act="exportCsv">Export CSV</button></div>
+   <div class="card sc">${rows.length?`<table><thead><tr><th>Nom</th><th>Périm.</th><th>Compte</th><th>Type</th><th class="n">Qté</th><th class="n">Cours</th><th>Dev.</th><th class="n">Valeur (${S.base})</th><th class="n">%</th><th>Pays</th><th>Secteur</th><th class="n">Frais</th><th></th></tr></thead><tbody>`+
+   rows.map(p=>`<tr><td>${esc(p.name)}</td><td>${p.scope==='pro'?'Pro':'Perso'}</td><td>${esc(p.account)}</td><td>${esc(p.type)}</td><td class="n">${nf(p.qty,4)}</td><td class="n">${nf(p.price,4)}</td><td>${esc(p.ccy)}</td><td class="n">${money(p.val)}</td><td class="n">${pc(D.total?p.val/D.total*100:0)}</td><td>${esc(p.cl)}</td><td>${esc(p.sl)}</td><td class="n">${p.fee==null?'—':pc(p.fee,2)}</td><td><button class="btn sec" data-act="editPos" data-id="${p.id}">✎</button> <button class="btn sec" data-act="delPos" data-id="${p.id}">🗑</button></td></tr>`).join('')+`</tbody></table>`:'<div class="muted">Aucune ligne.</div>'}</div>`;
+}
+const FIELDS=[['name','Nom *'],['qty','Quantité'],['price','Cours unitaire'],['value','Valeur totale'],['ccy','Devise'],['type','Type d\'actif'],['ticker','Ticker / ISIN'],['country','Pays'],['sector','Secteur'],['fee','Frais (TER %)'],['vol','Volatilité %'],['account','Compte']];
+const ALIAS={name:['nom','name','libelle','designation','titre','valeur','security','description','instrument','produit'],qty:['quantite','qte','quantity','qty','nombre','shares','parts','units','position'],price:['cours','prix','price','lastprice','dernier','cotation','valeurunitaire','last','marketprice','prixactuel'],value:['valorisation','montant','marketvalue','value','amount','solde','totalvalue','valeurtotale','valeurdemarche'],ccy:['devise','currency','ccy','monnaie'],type:['type','classe','assetclass','categorie','class','nature','classedactifs'],ticker:['ticker','symbole','symbol','isin','code','mnemo','mnemonique'],country:['pays','country','geographie','geo','zone'],sector:['secteur','sector','industrie','industry'],fee:['frais','ter','fees','fee','ongoing','fraiscourants','ratiodefrais','fraisannuels'],vol:['volatilite','vol','volatility'],account:['compte','account','portefeuille','portfolio','enveloppe']};
+function vImp(){
+  let h=`<div class="card"><h2>Importer un CSV de positions</h2><p class="muted">Séparateur (; , tab) et décimales (1 234,56 / 1,234.56) détectés automatiquement. Colonnes reconnues : nom, quantité, cours, valeur, devise, type, pays, secteur, frais, compte…</p>
+   <label class="btn">Choisir un fichier CSV<input type="file" id="file" accept=".csv,.txt,text/csv" hidden></label></div>`;
+  if(imp){
+    const opt=(sel)=>`<option value="-1">— non mappé —</option>`+imp.headers.map((x,i)=>`<option value="${i}" ${sel===i?'selected':''}>${esc(x)}</option>`).join('');
+    h+=`<div class="card"><h2>Colonnes — ${esc(imp.fileName)} (${imp.rows.length} lignes)</h2><div class="f">`+FIELDS.map(([k,l])=>`<div><label>${l}</label><select data-map="${k}">${opt(imp.map[k]??-1)}</select></div>`).join('')+`</div></div>
+    <div class="card"><h2>Destination & valeurs par défaut</h2><div class="f">
+     <div><label>Périmètre</label><select id="iScope"><option value="perso">Perso</option><option value="pro">Pro</option></select></div>
+     <div><label>Compte (si pas de colonne)</label><input id="iAcct" placeholder="ex. PEA Boursorama"></div>
+     <div><label>Type par défaut</label><select id="iType">${TYPES.map(t=>`<option ${t==='Action'?'selected':''}>${t}</option>`).join('')}</select></div>
+     <div><label>Devise par défaut</label><select id="iCcy">${Object.keys(S.fx).map(c=>`<option ${c===S.base?'selected':''}>${c}</option>`).join('')}</select></div>
+     <div class="w"><label>Mode</label><select id="iMode"><option value="add">Ajouter aux lignes existantes</option><option value="replace">Remplacer les lignes du même périmètre et compte</option></select></div></div>
+     <div class="sc" style="margin-top:12px">${previewTable()}</div>
+     <div class="tools" style="margin-top:12px"><button class="btn" data-act="doImport">Importer</button><button class="btn sec" data-act="cancelImp">Annuler</button></div></div>`;
+  }
+  return h;
+}
+function buildRows(def){
+  const g=(r,k)=>imp.map[k]>=0?r[imp.map[k]]:'';
+  const out=[];
+  imp.rows.forEach(r=>{
+    const name=String(g(r,'name')||'').trim();if(!name||/^(total|sous-total)/i.test(name))return;
+    let qty=num(g(r,'qty')),price=num(g(r,'price')),val=num(g(r,'value'));
+    if(isNaN(qty)&&isNaN(price)&&!isNaN(val)){qty=1;price=val}
+    else if(!isNaN(qty)&&isNaN(price)&&!isNaN(val)&&qty)price=val/qty;
+    else if(isNaN(qty)&&!isNaN(price)&&!isNaN(val)&&price)qty=val/price;
+    if(isNaN(qty)||isNaN(price))return;
+    const type=normType(g(r,'type'),def.type);
+    const fee=num(g(r,'fee')),vol=num(g(r,'vol'));
+    out.push({id:uid(),scope:def.scope,account:String(g(r,'account')||def.account||'').trim(),name,ticker:String(g(r,'ticker')||'').trim(),type,qty,price:type==='Cash'&&!price?1:price,ccy:normCcy(g(r,'ccy'),def.ccy),country:normCountry(g(r,'country')),sector:String(g(r,'sector')||'').trim(),fee:isNaN(fee)?null:fee,vol:isNaN(vol)?null:vol});
+  });
+  return out;
+}
+function impDef(){return {scope:$('#iScope')?.value||'perso',account:$('#iAcct')?.value||'',type:$('#iType')?.value||'Action',ccy:$('#iCcy')?.value||S.base}}
+function previewTable(){
+  const rows=buildRows(impDef()).slice(0,6);
+  if(!rows.length)return '<div class="muted">Aucune ligne valide avec ce mappage : vérifiez Nom + (Quantité & Cours) ou Valeur.</div>';
+  return `<div class="muted">Aperçu :</div><table><thead><tr><th>Nom</th><th>Type</th><th class="n">Qté</th><th class="n">Cours</th><th>Dev.</th><th>Pays</th><th>Secteur</th></tr></thead><tbody>`+rows.map(p=>`<tr><td>${esc(p.name)}</td><td>${p.type}</td><td class="n">${nf(p.qty,4)}</td><td class="n">${nf(p.price,4)}</td><td>${p.ccy}</td><td>${esc(p.country)}</td><td>${esc(p.sector)}</td></tr>`).join('')+`</tbody></table>`;
+}
+function vSet(){
+  const T=S.th;const thRow=(k,l,u,rev)=>`<div class="th2"><span>${l}</span><input data-th="${k}" data-i="0" value="${T[k][0]}" inputmode="decimal"><input data-th="${k}" data-i="1" value="${T[k][1]}" inputmode="decimal"></div>`;
+  return `<div class="card"><h2>Devise de référence & taux</h2>
+   <div class="tools"><select id="base" data-chg="base">${Object.keys(S.fx).map(c=>`<option ${c===S.base?'selected':''}>${c}</option>`).join('')}</select>
+   <button class="btn sec" data-act="fetchFx">Actualiser les taux (en ligne)</button><span class="muted">${S.fxDate?'Mis à jour : '+S.fxDate:'Taux indicatifs — à actualiser'}</span></div>
+   <div class="muted" style="margin-bottom:8px">Unités de devise pour 1 EUR (modifiable à la main, fonctionne hors-ligne).</div>
+   <div class="fxg">${Object.entries(S.fx).map(([c,r])=>`<div><label>${c}</label><input data-fx="${c}" value="${r}" inputmode="decimal"></div>`).join('')}</div>
+   <div class="tools" style="margin-top:10px"><input id="newCcy" placeholder="Code (ex. BRL)" style="width:130px"><input id="newRate" placeholder="Taux /EUR" style="width:110px" inputmode="decimal"><button class="btn sec" data-act="addCcy">Ajouter</button></div></div>
+  <div class="card"><h2>Seuils d'alerte (vigilance / alerte, en %)</h2>
+   <div class="th2"><span></span><b>Vigil.</b><b>Alerte</b></div>
+   ${thRow('pos','Une seule ligne')}${thRow('country','Un seul pays')}${thRow('sector','Un seul secteur')}${thRow('ccy','Une devise étrangère')}${thRow('fee','Frais pondérés /an')}${thRow('cash','Poids du cash')}${thRow('vol','Volatilité du portefeuille')}
+   <div class="th2"><span>Nb de lignes minimum (hors cash)</span><input data-th="nmin" data-i="0" value="${T.nmin[0]}"><input data-th="nmin" data-i="1" value="${T.nmin[1]}"></div></div>
+  <div class="card"><h2>Modèle de risque</h2>
+   <div class="th2"><span>Corrélation moyenne entre lignes (0–1)</span><input data-rho value="${S.rho}" inputmode="decimal"><span></span></div>
+   <div class="muted" style="margin:10px 0 4px">Volatilité annuelle par défaut (%) — remplaçable ligne par ligne :</div>
+   <div class="fxg">${TYPES.map(t=>`<div><label>${t}</label><input data-vd="${t}" value="${S.volDef[t]}" inputmode="decimal"></div>`).join('')}</div></div>
+  <div class="card"><h2>Données</h2><div class="tools"><button class="btn sec" data-act="exportJson">Sauvegarde JSON</button><label class="btn sec">Restaurer<input type="file" id="restore" accept=".json" hidden></label><button class="btn sec" data-act="demo">Charger un exemple</button><button class="btn danger" data-act="reset">Tout effacer</button></div>
+   <p class="muted">Les données sont stockées uniquement dans ce navigateur. Pensez à exporter une sauvegarde régulièrement.</p></div>`;
+}
+
+/* ====================== Rendu & événements ====================== */
+function render(){
+  $('#app').innerHTML=({dash:vDash,pos:vPos,imp:vImp,set:vSet})[tab]();
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  document.querySelectorAll('#scopeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.scope));
+}
+function posForm(p){
+  const cur=Object.keys(S.fx);
+  return `<form method="dialog" id="pf"><h3 style="margin-top:0">${p.id?'Modifier':'Ajouter'} une ligne</h3><div class="f">
+   <div><label>Périmètre</label><select name="scope"><option value="perso" ${p.scope==='perso'?'selected':''}>Perso</option><option value="pro" ${p.scope==='pro'?'selected':''}>Pro</option></select></div>
+   <div><label>Compte / portefeuille</label><input name="account" value="${esc(p.account)}"></div>
+   <div class="w"><label>Nom *</label><input name="name" value="${esc(p.name)}" required></div>
+   <div><label>Type</label><select name="type">${TYPES.map(t=>`<option ${t===p.type?'selected':''}>${t}</option>`).join('')}</select></div>
+   <div><label>Ticker / ISIN</label><input name="ticker" value="${esc(p.ticker)}"></div>
+   <div><label>Quantité (cash : montant)</label><input name="qty" value="${p.qty}" inputmode="decimal" required></div>
+   <div><label>Cours (cash : 1)</label><input name="price" value="${p.price}" inputmode="decimal" required></div>
+   <div><label>Devise</label><select name="ccy">${cur.map(c=>`<option ${c===p.ccy?'selected':''}>${c}</option>`).join('')}</select></div>
+   <div><label>Frais annuels (TER %)</label><input name="fee" value="${p.fee??''}" inputmode="decimal"></div>
+   <div><label>Pays / zone (ex. États-Unis, Monde)</label><input name="country" value="${esc(p.country)}"></div>
+   <div><label>Secteur (ex. Technologie, Diversifié)</label><input name="sector" value="${esc(p.sector)}"></div>
+   <div class="w"><label>Volatilité annuelle % (vide = défaut du type)</label><input name="vol" value="${p.vol??''}" inputmode="decimal"></div></div>
+   <div class="tools" style="margin-top:14px;justify-content:flex-end"><button type="button" class="btn sec" data-act="closeDlg">Annuler</button><button class="btn" data-act="savePos" value="ok">Enregistrer</button></div></form>`;
+}
+function openPos(p){$('#dlg').innerHTML=posForm(p);$('#dlg').dataset.id=p.id||'';$('#dlg').showModal()}
+const blank=(type='Action')=>({scope:S.scope==='pro'?'pro':'perso',account:'',name:type==='Cash'?'Cash':'',ticker:'',type,qty:'',price:type==='Cash'?1:'',ccy:S.base,country:'',sector:'',fee:'',vol:''});
+const A={
+  tab(t){tab=t.dataset.tab;render();scrollTo(0,0)},
+  scope(t){S.scope=t.dataset.v;save();render()},
+  addPos(){openPos(blank())},addCash(){openPos(blank('Cash'))},
+  editPos(t){openPos(S.positions.find(p=>p.id===t.dataset.id))},
+  delPos(t){if(confirm('Supprimer cette ligne ?')){S.positions=S.positions.filter(p=>p.id!==t.dataset.id);save();render()}},
+  closeDlg(){$('#dlg').close()},
+  savePos(t,e){
+    e.preventDefault();const f=new FormData($('#pf'));const g=k=>f.get(k);
+    const qty=num(g('qty')),price=num(g('price'));
+    if(!g('name').trim()||isNaN(qty)||isNaN(price)){toast('Nom, quantité et cours requis');return}
+    const fee=num(g('fee')),vol=num(g('vol'));
+    const p={id:$('#dlg').dataset.id||uid(),scope:g('scope'),account:g('account').trim(),name:g('name').trim(),ticker:g('ticker').trim(),type:g('type'),qty,price,ccy:g('ccy'),country:normCountry(g('country')),sector:g('sector').trim(),fee:isNaN(fee)?null:fee,vol:isNaN(vol)?null:vol};
+    const i=S.positions.findIndex(x=>x.id===p.id);if(i>=0)S.positions[i]=p;else S.positions.push(p);
+    save();$('#dlg').close();render();
+  },
+  doImport(){
+    const d=impDef();const rows=buildRows(d);if(!rows.length){toast('Rien à importer');return}
+    if($('#iMode').value==='replace'){const accts=new Set(rows.map(r=>r.account));S.positions=S.positions.filter(p=>!(p.scope===d.scope&&accts.has(p.account)))}
+    S.positions.push(...rows);
+    const unk=[...new Set(rows.map(r=>r.ccy).filter(c=>!S.fx[c]))];unk.forEach(c=>S.fx[c]=0);unk.forEach(c=>delete S.fx[c]);
+    save();imp=null;tab='dash';render();
+    toast(rows.length+' lignes importées'+(unk.length?' — taux à renseigner : '+unk.join(', '):''));
+  },
+  cancelImp(){imp=null;render()},
+  async fetchFx(){
+    const urls=['https://api.frankfurter.dev/v1/latest?base=EUR','https://api.frankfurter.app/latest?from=EUR'];
+    for(const u of urls){try{const r=await fetch(u);if(!r.ok)continue;const j=await r.json();S.fx={...S.fx,...j.rates,EUR:1};S.fxDate=j.date;save();render();toast('Taux mis à jour ('+j.date+')');return}catch(e){}}
+    toast('Impossible de récupérer les taux (hors-ligne ?)');
+  },
+  addCcy(){const c=$('#newCcy').value.trim().toUpperCase(),r=num($('#newRate').value);if(!/^[A-Z]{3}$/.test(c)||!(r>0)){toast('Code à 3 lettres et taux > 0');return}S.fx[c]=r;save();render()},
+  exportCsv(){
+    const h=['perso_pro','compte','nom','ticker','type','quantite','cours','devise','pays','secteur','frais_pct','volatilite_pct'];
+    const c=v=>{v=v==null?'':String(v);if(typeof v==='string'&&/^-?\d+\.\d+$/.test(v))v=v.replace('.',',');return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+    const L=[h.join(';')].concat(S.positions.map(p=>[p.scope,p.account,p.name,p.ticker,p.type,p.qty,p.price,p.ccy,p.country,p.sector,p.fee,p.vol].map(c).join(';')));
+    dl('positions.csv','\uFEFF'+L.join('\n'),'text/csv');
+  },
+  exportJson(){dl('patrimoine-sauvegarde.json',JSON.stringify(S,null,1),'application/json')},
+  demo(){
+    if(S.positions.length&&!confirm('Ajouter des données d\'exemple à vos lignes ?'))return;
+    const P=(scope,account,name,type,qty,price,ccy,country,sector,fee)=>({id:uid(),scope,account,name,ticker:'',type,qty,price,ccy,country,sector,fee,vol:null});
+    S.positions.push(
+      P('perso','PEA','Amundi MSCI World','ETF',120,480,'EUR','Monde','Diversifié',0.38),
+      P('perso','PEA','LVMH','Action',15,610,'EUR','France','Conso. discrétionnaire',null),
+      P('perso','PEA','Air Liquide','Action',40,170,'EUR','France','Matériaux',null),
+      P('perso','CTO','Apple','Action',60,225,'USD','États-Unis','Technologie',null),
+      P('perso','CTO','Microsoft','Action',25,430,'USD','États-Unis','Technologie',null),
+      P('perso','CTO','Nvidia','Action',80,140,'USD','États-Unis','Technologie',null),
+      P('perso','CTO','Novartis','Action',45,95,'CHF','Suisse','Santé',null),
+      P('perso','Assurance-vie','Fonds euros','Fonds',1,32000,'EUR','France','Diversifié',0.7),
+      P('perso','Livret','Livret A','Cash',1,15000,'EUR','','',0),
+      P('perso','CTO','Cash USD','Cash',4000,1,'USD','','',0),
+      P('pro','Holding','iShares Core S&P 500','ETF',300,560,'USD','États-Unis','Diversifié',0.07),
+      P('pro','Holding','Xtrackers Emerging Markets','ETF',900,60,'EUR','Marchés émergents','Diversifié',0.49),
+      P('pro','Holding','Obligations Euro Corp','Obligation',2000,98,'EUR','Europe','Finance',0.2),
+      P('pro','Holding','Compte courant société','Cash',1,45000,'EUR','','',0));
+    save();tab='dash';render();toast('Exemple chargé');
+  },
+  reset(){if(confirm('Effacer toutes les données locales ?')){S=defaults();save();render()}}
+};
+function dl(name,txt,mime){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:mime}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(t&&A[t.dataset.act])A[t.dataset.act](t,e)});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.chg==='base'){S.base=t.value;save();render();return}
+  if(t.dataset.fx){const v=num(t.value);if(v>0){S.fx[t.dataset.fx]=v;S.fxDate=null;save()}else toast('Taux invalide');render();return}
+  if(t.dataset.th){const v=num(t.value);if(!isNaN(v)){S.th[t.dataset.th][+t.dataset.i]=v;save()}return}
+  if(t.dataset.vd){const v=num(t.value);if(!isNaN(v)){S.volDef[t.dataset.vd]=v;save()}return}
+  if('rho' in t.dataset){const v=num(t.value);if(v>=0&&v<=1){S.rho=v;save()}else toast('Entre 0 et 1');return}
+  if(t.dataset.map){imp.map[t.dataset.map]=+t.value;render();return}
+  if(t.id==='iScope'||t.id==='iAcct'||t.id==='iType'||t.id==='iCcy'){const el=document.querySelector('#app .sc');if(el)el.innerHTML=previewTable();return}
+  if(t.id==='file'&&t.files[0])readFile(t.files[0]);
+  if(t.id==='restore'&&t.files[0])t.files[0].text().then(x=>{try{const j=JSON.parse(x);if(!Array.isArray(j.positions))throw 0;localStorage.setItem(LS,x);S=load();render();toast('Sauvegarde restaurée')}catch(e){toast('Fichier invalide')}});
+});
+document.addEventListener('input',e=>{if(e.target.dataset.in==='q'){q=e.target.value;const p=e.target.selectionStart;render();const n=$('#q');n.focus();n.setSelectionRange(p,p)}});
+
+/* ====================== Import CSV ====================== */
+function parseCSV(text){
+  text=text.replace(/^\uFEFF/,'');const first=text.split(/\r?\n/).find(l=>l.trim())||'';
+  const cnt=c=>first.split(c).length-1;const delim=[';','\t',','].sort((a,b)=>cnt(b)-cnt(a))[0];
+  const rows=[];let row=[],cur='',inq=false;
+  for(let i=0;i<text.length;i++){const ch=text[i];
+    if(inq){if(ch==='"'){if(text[i+1]==='"'){cur+='"';i++}else inq=false}else cur+=ch}
+    else if(ch==='"')inq=true;else if(ch===delim){row.push(cur);cur=''}
+    else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(cur);cur='';if(row.some(x=>x.trim()))rows.push(row);row=[]}
+    else cur+=ch}
+  row.push(cur);if(row.some(x=>x.trim()))rows.push(row);return rows;
+}
+function readFile(f){
+  const rd=new FileReader();
+  rd.onload=()=>{
+    let txt=rd.result;
+    if(txt.includes('\uFFFD')){const r2=new FileReader();r2.onload=()=>start(r2.result);r2.readAsText(f,'windows-1252');return}
+    start(txt);
+  };
+  const start=txt=>{
+    const all=parseCSV(txt);if(all.length<2){toast('CSV vide ou illisible');return}
+    // ligne d'en-tête = première ligne avec ≥ 2 alias reconnus (certains courtiers ajoutent des lignes de préambule)
+    let hi=0;const known=new Set(Object.values(ALIAS).flat());
+    for(let i=0;i<Math.min(all.length,15);i++){if(all[i].filter(h=>known.has(key(h))).length>=2){hi=i;break}}
+    const headers=all[hi].map(h=>h.trim());const map={};const used=new Set();
+    FIELDS.forEach(([k])=>{const i=headers.findIndex((h,ix)=>!used.has(ix)&&ALIAS[k].includes(key(h)));if(i>=0){map[k]=i;used.add(i)}});
+    imp={fileName:f.name,headers,rows:all.slice(hi+1),map};tab='imp';render();
+  };
+  rd.readAsText(f,'utf-8');
+}
+
+/* ====================== Démarrage ====================== */
+render();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
